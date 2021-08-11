@@ -1,0 +1,5 @@
+mouse-express/node_modules
+mouse-react/node_modules
+
+mouse-express/.env
+mouse-react/.env
