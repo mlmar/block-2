@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
 
-import { setCanvas, setGrid, animate } from '../../util/GameUtil.js';
-
+import { animate, setCanvas } from '../../util/GameUtil.js';
 import { DEFAULTS } from '../../util/Rules.js';
 
-const Canvas = ({ width, height, onMouseMove, onInit, onKey}) => {
+const Canvas = ({ width, height, onMouseMove, onInit, onKey, zoomMultiplier}) => {
   const canvasRef = useRef(null);
   const position = useRef(null);
 
@@ -13,10 +12,7 @@ const Canvas = ({ width, height, onMouseMove, onInit, onKey}) => {
     
     canvasRef.current.focus();
     setCanvas(canvasRef);
-    setGrid(width || DEFAULTS.WIDTH, height || DEFAULTS.HEIGHT, DEFAULTS.STEP);
     animate();
-
-    if(onInit) onInit();
   }, [width, height, onInit])
 
   const handleMouseMove = (event) => {
@@ -38,16 +34,23 @@ const Canvas = ({ width, height, onMouseMove, onInit, onKey}) => {
 
   const prevent = (event) => { event.preventDefault() }
 
+  const scale = 1 + (zoomMultiplier * DEFAULTS.STEP * 2) / DEFAULTS.WIDTH;
+  console.log(scale);
+  const style = {
+    transform: `scale(${scale})`
+  }
+
   return (
     <div className="canvas-wrapper">
       <canvas 
-        width={width || DEFAULTS.WIDTH} 
-        height={height || DEFAULTS.HEIGHT} 
+        width={DEFAULTS.WIDTH} 
+        height={DEFAULTS.HEIGHT} 
         onMouseMove={handleMouseMove}
         onKeyDown={handleKeyDown}
         onContextMenu={prevent}
         tabIndex={1}
         ref={canvasRef}
+        style={style}
       />
     </div>
   )

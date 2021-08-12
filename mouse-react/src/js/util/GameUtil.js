@@ -1,45 +1,27 @@
+import { DEFAULTS } from './Rules.js';
 import CanvasUtil from '../modules/canvas/CanvasUtil.js';
 const canvasUtil = new CanvasUtil();
 
-const CANVAS = {
-  width   : null,
-  height  : null
+if(DEFAULTS.WIDTH % DEFAULTS.STEP || DEFAULTS.WIDTH % DEFAULTS.STEP) {
+  console.warn("Height or width must be divisible by step");
 }
 
 const GRID = {
-  width   : null,
-  height  : null,
-  step    : null
+  width   : DEFAULTS.WIDTH / DEFAULTS.STEP,
+  height  : DEFAULTS.HEIGHT / DEFAULTS.STEP,
+  step    : DEFAULTS.STEP
 }
 
+const MAX_AGE = 500;
 const PLAYER = { id: null }
 let PLAYERS = {};
 let BLOCKS = {};
 
+let LIMIT = 0;
 
 export const setCanvas = (canvasRef) => {
   canvasUtil.init(canvasRef);
   canvasUtil.clear();
-
-  CANVAS.width = canvasRef.current.width;
-  CANVAS.height = canvasRef.current.height;
-}
-
-/*
-  Gets canvas dimensions in terms of a {height} by {width} grid of {step} cells
-*/
-export const setGrid = (width, height, step) => {
-  const int_width = parseInt(width);
-  const int_height = parseInt(height);
-
-  if(int_width % step || int_height % step) {
-    console.warn("Height or width must be divisible by step");
-    return;
-  }
-
-  GRID.width = int_width / step;
-  GRID.height = int_height / step;
-  GRID.step = step;
 }
 
 export const getSpawn = () => {
@@ -57,7 +39,6 @@ export const setPlayerPosition = (x, y) => {
   PLAYER.y = y;
 }
 
-let keyTimer = 0;
 export const setKeys = (key) => {
   if(key === "w") PLAYER.y -= GRID.step;
   if(key === "s") PLAYER.y += GRID.step;
@@ -97,7 +78,7 @@ export const setBlocks = (blocks) => {
 
 export const handleBlocks = (elapsed) => {
   const keys = Object.keys(BLOCKS);
-  if(keys.length > 60) console.log("BLOCKS array is getting quite large! @ ", keys.length);
+  if(keys.length > 100) console.log("BLOCKS array is getting quite large! @ ", keys.length);
 
   for(var i = 0; i < keys.length; i++) {
     const key = keys[i];
@@ -106,8 +87,12 @@ export const handleBlocks = (elapsed) => {
     BLOCKS[key].age += elapsed;
     
     drawBlock(BLOCKS[key]);
-    if(BLOCKS[key].age > 200) delete BLOCKS[key];
+    if(BLOCKS[key].age > MAX_AGE) delete BLOCKS[key];
   }
+}
+
+export const setLimit = (limit) => {
+  LIMIT = limit;
 }
 
 let last = 0, elapsed = 0;

@@ -15,10 +15,13 @@ const createRoom = (room) => {
   if(ROOMS[room]) return;
   
   ROOMS[room] = new Object({
-    host      : null,
-    players   : {},
-    interval  : null,
-    progress  : null
+    host        : null,
+    players     : {},
+    interval    : null,
+    progress    : null,
+    alive       : 0,
+    difficulty  : 0,
+    limit       : 0
   });
 }
 

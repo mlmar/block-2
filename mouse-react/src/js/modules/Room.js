@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 
+import { DEFAULTS } from '../util/Rules.js';
 import { STRIPPED_HOME_URL } from '../util/System.js';
 import { SOCKET } from '../util/SocketUtil.js';
 
-import { setPlayerID, setPlayerPosition, setKeys, getSpawn, setBlocks, setPlayerPositions } from '../util/GameUtil.js';
+import { setPlayerID, setPlayerPosition, setKeys, getSpawn, setBlocks, setLimit, setPlayerPositions } from '../util/GameUtil.js';
 
 import Lobby from './ui/Lobby.js';
 import Canvas from './canvas/Canvas.js';
@@ -15,6 +16,7 @@ const Room = ({ name }) => {
   const [view, setView] = useState(0);
   const [host, setHost] = useState(null);
   const [players, setPlayers] = useState(null);
+  const [zoomMultiplier, setZoomMultiplier] = useState(0);
   
   useEffect(() => {
     if(!name) return;
@@ -32,17 +34,21 @@ const Room = ({ name }) => {
       if(info?.progress) setView(1);
     });
 
-    SOCKET.on('BLOCKS', setBlocks);
+    SOCKET.on('GENERATION', (response) => {
+      setBlocks(response.blocks);
+      setLimit(response.limit);
+      setZoomMultiplier(response.limit)
+    });
 
     SOCKET.on('POSITIONS', setPlayerPositions);
     
   }, [room, name]);
 
-  const handleInit = () => {
+  useEffect(() => {
     const [x, y] = getSpawn();
     setPlayerPosition(x, y);
     setPlayerID(SOCKET.id);
-  }
+  }, []);
 
   const handleStart = () => {
     SOCKET.emit('START_GAME');
@@ -53,8 +59,8 @@ const Room = ({ name }) => {
   //   SOCKET.emit('PLAYER_POSITION', position);
   // }
 
-  const handleKey = (keys) => {
-    const position = setKeys(keys);
+  const handleKey = (key) => {
+    const position = setKeys(key);
     SOCKET.emit('PLAYER_POSITION', position);
   }
 
@@ -63,7 +69,7 @@ const Room = ({ name }) => {
       return (
         <>
           <label className="large bold"> test </label>
-          <Canvas onKey={handleKey} onInit={handleInit}/>
+          <Canvas onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
         </>
       )
     } else {

@@ -147,8 +147,11 @@ label, p, input {
 
 .canvas-wrapper {
   margin: auto;
+  overflow: hidden;
 }
 
 .canvas-wrapper canvas {
   outline: none;
+  image-rendering: pixelated;
+  transition: transform 1s ease;
 }
