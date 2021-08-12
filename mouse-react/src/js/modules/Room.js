@@ -6,7 +6,7 @@ import { DEFAULTS } from '../util/Rules.js';
 import { STRIPPED_HOME_URL } from '../util/System.js';
 import { SOCKET } from '../util/SocketUtil.js';
 
-import { setPlayerID, setPlayerColor, setPlayerPosition, setKeys, setLimit, setBlocks, setPickups, setPlayerPositions, getSpawn } from '../util/GameUtil.js';
+import { setPlayerID, setPlayerColor, setKeys, setLimit, setBlocks, setPickups, setPlayerPositions } from '../util/GameUtil.js';
 
 import Lobby from './ui/Lobby.js';
 import Canvas from './canvas/Canvas.js';
@@ -30,10 +30,11 @@ const Room = ({ name }) => {
       setView(1);
     });
 
-    SOCKET.on('ROOM_UPDATE', (info) => {
-      setHost(info?.host);
-      setPlayers(info?.players);
-      if(info?.progress) setView(1);
+    SOCKET.on('ROOM_UPDATE', (response) => {
+      setHost(response?.host);
+      setPlayers(response?.playersList);
+      setPlayerPositions(response?.players);
+      if(response.difficulty > 0) setView(1);
     });
 
     SOCKET.on('GENERATION', (response) => {
@@ -48,8 +49,6 @@ const Room = ({ name }) => {
   }, [room, name]);
 
   useEffect(() => {
-    const [x, y] = getSpawn();
-    setPlayerPosition(x, y);
     setPlayerID(SOCKET.id);
   }, []);
 

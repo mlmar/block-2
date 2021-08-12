@@ -1,4 +1,5 @@
-const { DEFAULTS } = require("./Rules");
+const { DEFAULTS, SPAWN } = require('./Rules.js');
+const { isTouching } = require('./CollisionUtil.js');
 
 /*** ROOM SERVICE ***/
 const ROOMS = {};
@@ -20,7 +21,6 @@ const createRoom = (room) => {
     host        : null,
     players     : {},
     interval    : null,
-    progress    : null,
     alive       : 0,
     difficulty  : 0,
     limit       : 0,
@@ -34,11 +34,11 @@ const joinRoom = ({ room, id, nickname}) => {
   createRoom(room);
   
   if(!ROOMS[room].host) ROOMS[room].host = { id, nickname };
-  ROOMS[room].players[id] = { id, nickname, position : null, color: DEFAULTS.COLOR };
+  ROOMS[room].players[id] = { id, nickname, position : { x: SPAWN.x, y: SPAWN.y }, color: DEFAULTS.COLOR };
   
   // console.log("Join room", ROOMS[room]);
   console.log(id, "joined room", room, "as", nickname);
-  return { ...ROOMS[room], players: getPlayers(room), interval: null};
+  return { ...ROOMS[room], playersList: getPlayers(room), interval: null };
 }
 
 // delete room if user is last user in room, otherwise delete user and find new host if necessary
@@ -63,14 +63,30 @@ const leaveRoom = ({ room, id, nickname }) => {
   }
   
   console.log(id, "left room", room, "as", nickname);
-  return { ...ROOMS[room], players: getPlayers(room), interval: null};
+  return { ...ROOMS[room], playersList: getPlayers(room), interval: null };
 }
 
 const setPosition = (socket, position) => {
   const { id, room } = socket;
   if(!room) return;
 
+  const playerKeys = Object.keys(ROOMS[room].players);
   ROOMS[room].players[id].position = position;
+
+  for(var i = 0; i < playerKeys.length; i++) {
+    const player = ROOMS[room].players[playerKeys[i]];
+    if(player.id !== id && isTouching(position, player.position)) console.log("touching");
+  }
+
+  const pickupKeys = Object.keys(ROOMS[room].pickups);
+
+  const senderPosition = ROOMS[room].players[id].position;
+  for(var i = 0; i < pickupKeys.length; i++) {
+    const p = pickupKeys[i];
+    const pickup = ROOMS[room].pickups[p]
+    if(isTouching(pickup, senderPosition)) delete ROOMS[room].pickups[p];
+  }
+
   return ROOMS[room].players;
 }
 

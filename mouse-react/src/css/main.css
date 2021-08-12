@@ -160,5 +160,5 @@ label, p, input {
 .canvas-wrapper canvas {
   outline: none;
   image-rendering: pixelated;
-  transition: transform 1s ease;
+  transition: transform 1s linear;
 }

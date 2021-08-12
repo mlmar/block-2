@@ -1,11 +1,6 @@
 const { ROOMS } = require('./RoomsUtil.js');
-const { DEFAULTS } = require('./Rules.js');
-
-const GRID = {
-  width   : DEFAULTS.WIDTH / DEFAULTS.STEP,
-  height  : DEFAULTS.HEIGHT / DEFAULTS.STEP,
-  step    : DEFAULTS.STEP
-}
+const { DEFAULTS, GRID } = require('./Rules.js');
+const { isTouching } = require('./CollisionUtil.js');
 
 const ORANGE = "rgb(255, 204, 102)";
 
@@ -31,12 +26,12 @@ const getBlock = (direction, limit) => {
   let x, y, width, height, velocity;
 
   if(direction === "up" || direction === "down") {
-    width = GRID.step;
-    height = random(GRID.height * .6, GRID.step) * GRID.step;
+    width = GRID.STEP;
+    height = random(GRID.HEIGHT * .6, GRID.STEP) * GRID.STEP;
     
     const offset = Math.abs(DEFAULTS.HEIGHT - height) / 2;
 
-    x = random(GRID.width - limit, limit) * GRID.step;
+    x = random(GRID.WIDTH - limit, limit) * GRID.STEP;
     y = direction === "up" ? DEFAULTS.HEIGHT + offset : offset - DEFAULTS.HEIGHT;
 
     velocity = {
@@ -44,13 +39,13 @@ const getBlock = (direction, limit) => {
       y: direction === "up" ? -DEFAULTS.SPEED : DEFAULTS.SPEED,
     }
   } else {
-    width = random(GRID.width * .6, GRID.step) * GRID.step;
-    height = GRID.step;
+    width = random(GRID.WIDTH * .6, GRID.STEP) * GRID.STEP;
+    height = GRID.STEP;
 
     const offset = Math.abs(DEFAULTS.WIDTH - width) / 2;
     
     x = direction === "left" ? DEFAULTS.WIDTH + offset : offset - DEFAULTS.WIDTH;
-    y = random(GRID.height - limit, limit) * GRID.step;
+    y = random(GRID.HEIGHT - limit, limit) * GRID.STEP;
     
     velocity = {
       x: direction === "left" ? -DEFAULTS.SPEED : DEFAULTS.SPEED,
@@ -75,38 +70,45 @@ const generateBlocks = (amount, direction, limit) => {
 const generatePickup = (type, limit) => {
   if(type === "health") {
     return {
-      x: random(GRID.width - limit, limit) * GRID.step,
-      y: random(GRID.height - limit, limit) * GRID.step,
+      x: random(GRID.WIDTH - limit, limit) * GRID.STEP,
+      y: random(GRID.HEIGHT - limit, limit) * GRID.STEP,
       color: ORANGE
     }
   }
 }
 
 const handlePickups = (room, limit) => {
-  const keys = Object.keys(ROOMS[room].pickups);
-  for(var i = 0; i < keys.length; i++) {
-    const p = keys[i];
+  const pickupKeys = Object.keys(ROOMS[room].pickups);
+
+  for(var i = 0; i < pickupKeys.length; i++) {
+    const p = pickupKeys[i];
     const pickup = ROOMS[room].pickups[p]
-
-    const BELOW_X = pickup.x < (limit * GRID.step);
-    const ABOVE_X = pickup.x >= DEFAULTS.WIDTH - (limit * GRID.step);
-
-    const BELOW_Y = pickup.y < (limit * GRID.step);
-    const ABOVE_Y = pickup.y >= DEFAULTS.HEIGHT - (limit * GRID.step);
-    if(BELOW_X || ABOVE_X || BELOW_Y || ABOVE_Y) delete ROOMS[room].pickups[p];
+    if(isOutofBOunds(pickup, limit)) delete ROOMS[room].pickups[p];
   }
 
-  if(keys.length <= ROOMS[room].alive) {
+  if(pickupKeys.length < ROOMS[room].alive) {
     const pickup = generatePickup("health", ROOMS[room].limit);
     ROOMS[room].pickups[uuid()] = pickup;
   }
+}
+
+const isOutofBOunds = (item, limit) => {
+  if(!item) return;
+
+  const BELOW_X = item.x < (limit * GRID.STEP);
+  const ABOVE_X = item.x >= DEFAULTS.WIDTH - (limit * GRID.STEP);
+
+  const BELOW_Y = item.y < (limit * GRID.STEP);
+  const ABOVE_Y = item.y >= DEFAULTS.HEIGHT - (limit * GRID.STEP);
+  return BELOW_X || ABOVE_X || BELOW_Y || ABOVE_Y;
 }
 
 const startGeneration = (callback, room) => {
   if(!callback) return;
 
   return setInterval(function() {
-    blocks = generateBlocks(DEFAULTS.AMOUNT, "random", ROOMS[room].limit);
+    const amount = Math.round(DEFAULTS.AMOUNT - ROOMS[room].limit * 5 / GRID.WIDTH);
+    blocks = generateBlocks(amount, "random", ROOMS[room].limit);
     ROOMS[room].difficulty++;
     ROOMS[room].limit = Math.floor(ROOMS[room].difficulty / DEFAULTS.DIFFICULTY_INTERVAL);
 
@@ -121,4 +123,4 @@ const stopGeneration = (interval) => {
   clearInterval(interval);
 }
 
-module.exports = { startGeneration, stopGeneration }
+module.exports = { startGeneration, stopGeneration, isTouching }

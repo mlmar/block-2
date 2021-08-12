@@ -1,4 +1,4 @@
-import { DEFAULTS } from './Rules.js';
+import { DEFAULTS, SPAWN } from './Rules.js';
 import CanvasUtil from '../modules/canvas/CanvasUtil.js';
 const canvasUtil = new CanvasUtil();
 
@@ -13,15 +13,15 @@ const GRID = {
 }
 
 const MAX_AGE = 500;
-let PLAYER = { id: null, x: null, y: null, color: DEFAULTS.COLOR }
+let PLAYER = { id: null, x: SPAWN.x, y: SPAWN.y, color: DEFAULTS.COLOR }
 let PLAYERS = {};
 let BLOCKS = {};
-let PICKUPS = null;
+let PICKUPS = {};
 let LIMIT = 0;
 
 
 export const reset = () => {
-  PLAYER = { ...PLAYER, x: null, y: null }
+  PLAYER = { ...PLAYER, x: SPAWN.x, y: SPAWN.y }
   PLAYERS = {};
   BLOCKS = {};
   PICKUPS = null;
@@ -34,13 +34,6 @@ export const setCanvas = (canvasRef) => {
   canvasUtil.init(canvasRef);
   canvasUtil.clear();
 }
-
-export const getSpawn = () => {
-  const x = Math.floor(GRID.width / 2) * GRID.step;
-  const y = Math.floor(GRID.height / 2) * GRID.step;
-  return [ x, y ]
-}
-
 
 export const drawPlayer = () => {
   const { x, y } = PLAYER;
@@ -79,17 +72,17 @@ const handlePlayers = () => {
     
     if(PLAYER.id !== player.id) {
       if(isTouching(player.position, PLAYER)) console.log("TOUCHING PLAYERS");
-      const [pos_x, pos_y] = getSpawn();
-      canvasUtil.rect(player.position.x  || pos_x, player.position.y || pos_y, GRID.step, GRID.step, player.color);
+      canvasUtil.rect(player.position.x, player.position.y, GRID.step, GRID.step, player.color);
     }
   }
 }
 
 // check if a player activates a pickup
 const handlePickups = () => {
-  for(const p in PICKUPS) {
+  const pickupKeys = Object.keys(PICKUPS);
+  for(var i = 0; i < pickupKeys.length; i++) {
+    const p = pickupKeys[i];
     const { x, y, color } = PICKUPS[p];
-    if(isTouching(PICKUPS[p], PLAYER)) console.log("PICKUP");
     canvasUtil.rect(x, y, GRID.step, GRID.step, color);
   }
 }
@@ -133,11 +126,6 @@ export const setPlayerID = (id) => {
 
 export const setPlayerColor = (color) => {
   PLAYER.color = color;
-}
-
-export const setPlayerPosition = (x, y) => {
-  PLAYER.x = x;
-  PLAYER.y = y;
 }
 
 export const setKeys = (key) => {

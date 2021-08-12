@@ -6,7 +6,18 @@ const DEFAULTS = {
   INTERVAL            : 300,
   SPEED               : 5,
   DIFFICULTY_INTERVAL : 20,
-  COLOR               : "#3c3cff"
+  COLOR               : "#3c3cff",
 }
 
-module.exports = { DEFAULTS };
+const GRID = {
+  WIDTH   : DEFAULTS.WIDTH / DEFAULTS.STEP,
+  HEIGHT  : DEFAULTS.HEIGHT / DEFAULTS.STEP,
+  STEP    : DEFAULTS.STEP
+}
+
+const SPAWN = {
+  x : Math.floor(GRID.WIDTH / 2) * GRID.STEP,
+  y : Math.floor(GRID.HEIGHT / 2) * GRID.STEP
+}
+
+module.exports = { DEFAULTS, GRID, SPAWN };

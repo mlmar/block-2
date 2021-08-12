@@ -33,9 +33,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('START_GAME', () => {
-    const { room } = socket;
+    const room = socket.room;
     io.to(room).emit('START_GAME');
-    ROOMS[room].progress = true;
     ROOMS[room].alive = Object.keys(ROOMS[room].players).length;
     ROOMS[room].interval = startGeneration((blocks) => {
       if(ROOMS[room]) {
@@ -47,7 +46,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('PLAYER_POSITION', (position) => {
-    const { room } = socket;
+    const room = socket.room;
     const positions = setPosition(socket, position)
     socket.to(room).emit('POSITIONS', positions);
   });
