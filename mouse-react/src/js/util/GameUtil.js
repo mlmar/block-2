@@ -16,6 +16,7 @@ const MAX_AGE = 500;
 const PLAYER = { id: null }
 let PLAYERS = {};
 let BLOCKS = {};
+let PICKUPS = null;
 
 let LIMIT = 0;
 
@@ -91,6 +92,17 @@ export const handleBlocks = (elapsed) => {
   }
 }
 
+export const setPickups = (pickups) => {
+  PICKUPS = pickups;
+}
+
+export const drawPickups = () => {
+  for(const p in PICKUPS) {
+    const { x, y, color} = PICKUPS[p];
+    canvasUtil.rect(x, y, GRID.step, GRID.step, color);
+  }
+}
+
 export const setLimit = (limit) => {
   LIMIT = limit;
 }
@@ -103,9 +115,12 @@ export const animate = () => {
     last = time;
 
     canvasUtil.clear();
+    drawPickups();
     drawPlayers();
     drawPlayer();
     handleBlocks(elapsed);
+
+    canvasUtil.rect(LIMIT * GRID.step, LIMIT * GRID.step, DEFAULTS.WIDTH - (LIMIT * GRID.step * 2), DEFAULTS.WIDTH - (LIMIT * GRID.step * 2), "rgb(0,0,0,.3)");
 
     requestAnimationFrame(render);
   }

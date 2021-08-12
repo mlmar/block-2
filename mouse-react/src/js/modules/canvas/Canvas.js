@@ -34,7 +34,7 @@ const Canvas = ({ width, height, onMouseMove, onInit, onKey, zoomMultiplier}) =>
 
   const prevent = (event) => { event.preventDefault() }
 
-  const scale = 1 + (zoomMultiplier * DEFAULTS.STEP * 2) / DEFAULTS.WIDTH;
+  const scale = 1 + (Math.pow(DEFAULTS.WIDTH, 2) - Math.pow(DEFAULTS.width - zoomMultiplier * DEFAULTS.STEP * 2, 2)) / Math.pow(DEFAULTS.WIDTH, 2);
   console.log(scale);
   const style = {
     transform: `scale(${scale})`

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 
-import { DEFAULTS } from '../util/Rules.js';
 import { STRIPPED_HOME_URL } from '../util/System.js';
 import { SOCKET } from '../util/SocketUtil.js';
 
-import { setPlayerID, setPlayerPosition, setKeys, getSpawn, setBlocks, setLimit, setPlayerPositions } from '../util/GameUtil.js';
+import { setPlayerID, getSpawn, setPlayerPosition, setKeys, setLimit, setBlocks, setPickups, setPlayerPositions } from '../util/GameUtil.js';
 
 import Lobby from './ui/Lobby.js';
 import Canvas from './canvas/Canvas.js';
@@ -35,8 +34,9 @@ const Room = ({ name }) => {
     });
 
     SOCKET.on('GENERATION', (response) => {
-      setBlocks(response.blocks);
       setLimit(response.limit);
+      setBlocks(response.blocks);
+      setPickups(response.pickups)
       setZoomMultiplier(response.limit)
     });
 
