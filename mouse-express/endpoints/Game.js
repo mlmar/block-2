@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
     ROOMS[room].alive = Object.keys(ROOMS[room].players).length;
     ROOMS[room].interval = startGeneration((blocks) => {
       if(ROOMS[room]) {
-        io.to(room).emit('GENERATION', { blocks, limit : ROOMS[room].limit });
+        io.to(room).emit('GENERATION', { blocks, limit : ROOMS[room].limit, pickups : ROOMS[room].pickups });
       } else {
         clearInterval(this);
       }

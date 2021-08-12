@@ -7,6 +7,8 @@ const GRID = {
   step    : DEFAULTS.STEP
 }
 
+const ORANGE = "rgb(255, 204, 102)";
+
 const COLORS = [
   "rgb(245, 78, 66)", "rgb(24, 217, 62)", "rgb(3, 169, 244)", "rgb(255, 122, 244)",
 ]
@@ -70,6 +72,37 @@ const generateBlocks = (amount, direction, limit) => {
   return blocks;
 }
 
+const generatePickup = (type, limit) => {
+  if(type === "health") {
+    return {
+      x: random(GRID.width - limit, limit) * GRID.step,
+      y: random(GRID.height - limit, limit) * GRID.step,
+      color: ORANGE
+    }
+  }
+}
+
+const handlePickups = (room, limit) => {
+  const keys = Object.keys(ROOMS[room].pickups);
+  for(var i = 0; i < keys.length; i++) {
+    const p = keys[i];
+    const pickup = ROOMS[room].pickups[p]
+
+    const BELOW_X = pickup.x < (limit * GRID.step);
+    const ABOVE_X = pickup.x >= DEFAULTS.WIDTH - (limit * GRID.step);
+
+    const BELOW_Y = pickup.y < (limit * GRID.step);
+    const ABOVE_Y = pickup.y >= DEFAULTS.height - (limit * GRID.step);
+    if(BELOW_X || ABOVE_X) delete ROOMS[room].pickups[p];
+    if(BELOW_Y || ABOVE_Y) delete ROOMS[room].pickups[p];
+  }
+
+  if(keys.length <= ROOMS[room].alive) {
+    const pickup = generatePickup("health", ROOMS[room].limit);
+    ROOMS[room].pickups[uuid()] = pickup;
+  }
+}
+
 const startGeneration = (callback, room) => {
   if(!callback) return;
 
@@ -77,6 +110,10 @@ const startGeneration = (callback, room) => {
     blocks = generateBlocks(DEFAULTS.AMOUNT, "random", ROOMS[room].limit);
     ROOMS[room].difficulty++;
     ROOMS[room].limit = Math.floor(ROOMS[room].difficulty / DEFAULTS.DIFFICULTY_INTERVAL);
+
+    handlePickups(room, ROOMS[room].limit);
+
+
     callback(blocks);
   }, DEFAULTS.INTERVAL)
 }

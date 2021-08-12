@@ -21,7 +21,8 @@ const createRoom = (room) => {
     progress    : null,
     alive       : 0,
     difficulty  : 0,
-    limit       : 0
+    limit       : 0,
+    pickups     : {}
   });
 }
 
