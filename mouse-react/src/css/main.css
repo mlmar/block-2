@@ -139,15 +139,22 @@ label, p, input {
   margin: .5rem 0;
 }
 
-.player-list > .selected {
-  color: rgb(60, 60, 255);
+.player-list input[type=color] {
+  margin-left: .5rem;
+  width: 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
 /*** CANVAS ***/
 
 .canvas-wrapper {
+  display: flex;
   margin: auto;
   overflow: hidden;
+  justify-self: center;
+  align-items: center;
 }
 
 .canvas-wrapper canvas {

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const io = require('socket.io')(server, { transports: ['websocket'] });
-const { ROOMS, joinRoom, leaveRoom, setPosition } = require('../util/RoomsUtil.js');
-const { DEFAULTS, startGeneration, stopGeneration } = require('../util/GameUtil.js');
+const { ROOMS, joinRoom, leaveRoom, setPosition, setColor } = require('../util/RoomsUtil.js');
+const { startGeneration } = require('../util/GameUtil.js');
 
 /*** SOCKET SERVICE ***/
 io.on('connection', (socket) => {
@@ -51,6 +51,10 @@ io.on('connection', (socket) => {
     const positions = setPosition(socket, position)
     socket.to(room).emit('POSITIONS', positions);
   });
+
+  socket.on('PLAYER_COLOR', (color) => {
+    setColor(socket, color);
+  })
 
 });
 

@@ -92,9 +92,8 @@ const handlePickups = (room, limit) => {
     const ABOVE_X = pickup.x >= DEFAULTS.WIDTH - (limit * GRID.step);
 
     const BELOW_Y = pickup.y < (limit * GRID.step);
-    const ABOVE_Y = pickup.y >= DEFAULTS.height - (limit * GRID.step);
-    if(BELOW_X || ABOVE_X) delete ROOMS[room].pickups[p];
-    if(BELOW_Y || ABOVE_Y) delete ROOMS[room].pickups[p];
+    const ABOVE_Y = pickup.y >= DEFAULTS.HEIGHT - (limit * GRID.step);
+    if(BELOW_X || ABOVE_X || BELOW_Y || ABOVE_Y) delete ROOMS[room].pickups[p];
   }
 
   if(keys.length <= ROOMS[room].alive) {

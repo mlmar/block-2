@@ -23,7 +23,7 @@ const Home = ({ name, setName }) => {
     }
   }
 
-  if(navigate) return {navigate};
+  if(navigate) return navigate;
   return (
     <div className="home">
       <input 

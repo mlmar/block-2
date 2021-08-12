@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 
+import { DEFAULTS } from '../util/Rules.js';
+
 import { STRIPPED_HOME_URL } from '../util/System.js';
 import { SOCKET } from '../util/SocketUtil.js';
 
-import { setPlayerID, getSpawn, setPlayerPosition, setKeys, setLimit, setBlocks, setPickups, setPlayerPositions } from '../util/GameUtil.js';
+import { setPlayerID, setPlayerColor, setPlayerPosition, setKeys, setLimit, setBlocks, setPickups, setPlayerPositions, getSpawn } from '../util/GameUtil.js';
 
 import Lobby from './ui/Lobby.js';
 import Canvas from './canvas/Canvas.js';
@@ -15,6 +17,7 @@ const Room = ({ name }) => {
   const [view, setView] = useState(0);
   const [host, setHost] = useState(null);
   const [players, setPlayers] = useState(null);
+  const [color, setColor] = useState(DEFAULTS.COLOR);
   const [zoomMultiplier, setZoomMultiplier] = useState(0);
   
   useEffect(() => {
@@ -64,6 +67,12 @@ const Room = ({ name }) => {
     SOCKET.emit('PLAYER_POSITION', position);
   }
 
+  const handleColorChange = (color) => {
+    setColor(color);
+    setPlayerColor(color);
+    SOCKET.emit("PLAYER_COLOR", color);
+  }
+
   const getView = () => {
     if(view === 1) {
       return (
@@ -76,7 +85,7 @@ const Room = ({ name }) => {
       return (
         <>
           <label className="large bold"> {STRIPPED_HOME_URL}/{room} </label>
-          <Lobby name={name} players={players}>
+          <Lobby id={SOCKET.id} players={players} color={color} onChange={handleColorChange}>
             { (host?.id === SOCKET.id) &&
               <button className="round-btn large bold" onClick={handleStart}> start </button>
             }

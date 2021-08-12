@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { animate, setCanvas } from '../../util/GameUtil.js';
 import { DEFAULTS } from '../../util/Rules.js';
 
-const Canvas = ({ width, height, onMouseMove, onInit, onKey, zoomMultiplier}) => {
+const Canvas = ({ width, height, onMouseMove, onKey, zoomMultiplier}) => {
   const canvasRef = useRef(null);
   const position = useRef(null);
 
@@ -13,7 +13,7 @@ const Canvas = ({ width, height, onMouseMove, onInit, onKey, zoomMultiplier}) =>
     canvasRef.current.focus();
     setCanvas(canvasRef);
     animate();
-  }, [width, height, onInit])
+  }, [width, height])
 
   const handleMouseMove = (event) => {
     if(!onMouseMove) return;
@@ -34,10 +34,9 @@ const Canvas = ({ width, height, onMouseMove, onInit, onKey, zoomMultiplier}) =>
 
   const prevent = (event) => { event.preventDefault() }
 
-  const scale = 1 + (Math.pow(DEFAULTS.WIDTH, 2) - Math.pow(DEFAULTS.width - zoomMultiplier * DEFAULTS.STEP * 2, 2)) / Math.pow(DEFAULTS.WIDTH, 2);
-  console.log(scale);
+  const scale = DEFAULTS.WIDTH / (DEFAULTS.WIDTH - zoomMultiplier * DEFAULTS.STEP * 2);
   const style = {
-    transform: `scale(${scale})`
+   transform: `scale(${scale})`
   }
 
   return (

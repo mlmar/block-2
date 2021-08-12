@@ -1,3 +1,5 @@
+const { DEFAULTS } = require("./Rules");
+
 /*** ROOM SERVICE ***/
 const ROOMS = {};
 
@@ -32,7 +34,7 @@ const joinRoom = ({ room, id, nickname}) => {
   createRoom(room);
   
   if(!ROOMS[room].host) ROOMS[room].host = { id, nickname };
-  ROOMS[room].players[id] = { id, nickname, position : null };
+  ROOMS[room].players[id] = { id, nickname, position : null, color: DEFAULTS.COLOR };
   
   // console.log("Join room", ROOMS[room]);
   console.log(id, "joined room", room, "as", nickname);
@@ -72,4 +74,10 @@ const setPosition = (socket, position) => {
   return ROOMS[room].players;
 }
 
-module.exports = { ROOMS, createRoom, joinRoom, leaveRoom, setPosition };
+const setColor = (socket, color) => {
+  const { id, room} = socket;
+  if(!room) return;
+  ROOMS[room].players[id].color = color;
+}
+
+module.exports = { ROOMS, createRoom, joinRoom, leaveRoom, setPosition, setColor };
