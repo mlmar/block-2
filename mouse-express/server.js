@@ -18,7 +18,7 @@ const { PORT, DEV } = process.env;
  */
 respond = (status, data, msg) => new Object({ status, data, msg });
 
-server = app.listen(PORT, () => {
+server = app.listen(PORT || 3300, () => {
   console.log("Listening on port " + PORT);
 });
 
