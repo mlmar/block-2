@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild": "cd /mouse-express && npm install",
+    "heroku-postbuild": "npm install --prefix mouse-express",
     "start": "cd /mouse-express && node server.js"
   },
   "repository": {
