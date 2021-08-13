@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 
@@ -29,11 +30,9 @@ app.use('/test', test);
 const game = require('./endpoints/Game.js')
 app.use('/game', game);
 
-// SERVER STATIC DIRECTORYT IF NOT IN DEVELOPMENT
-if(!DEV) {
+// SERVER STATIC DIRECTORY IF NOT IN DEVELOPMENT
+if(!DEV || DEV === "false") {
   const REACT_DIRECTORY = "../mouse-react/build";
-  const path = require('path');
-
   app.use(express.static(path.join(__dirname, REACT_DIRECTORY)))
   app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, REACT_DIRECTORY,'index.html'))
