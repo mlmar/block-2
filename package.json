@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "heroku-postbuild": "npm install --prefix mouse-express",
-    "start": "npm start --prefix-mouse-express"
+    "start": "npm run server --prefix mouse-express"
   },
   "repository": {
     "type": "git",
