@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd /mouse-express && npm i && node server.js"
+    "buld": "cd /mouse-react && npm run build",
+    "start": "cd /mouse-express && node server.js"
   },
   "repository": {
     "type": "git",
