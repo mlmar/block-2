@@ -31,7 +31,7 @@ const game = require('./endpoints/Game.js')
 app.use('/game', game);
 
 // SERVER STATIC DIRECTORY IF NOT IN DEVELOPMENT
-if(!DEV || DEV === "false") {
+if(!DEV) {
   const REACT_DIRECTORY = "../mouse-react/build";
   app.use(express.static(path.join(__dirname, REACT_DIRECTORY)))
   app.get('/*', (req, res) => {
