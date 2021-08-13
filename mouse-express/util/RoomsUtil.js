@@ -1,4 +1,4 @@
-const { DEFAULTS, SPAWN } = require('./Rules.js');
+const { DEFAULTS, randomSpawn } = require('./Rules.js');
 const { isTouching } = require('./CollisionUtil.js');
 
 /*** ROOM SERVICE ***/
@@ -34,7 +34,13 @@ const joinRoom = ({ room, id, nickname}) => {
   createRoom(room);
   
   if(!ROOMS[room].host) ROOMS[room].host = { id, nickname };
-  ROOMS[room].players[id] = { id, nickname, position : { x: SPAWN.x, y: SPAWN.y }, color: DEFAULTS.COLOR };
+  const [x, y] = randomSpawn();
+  ROOMS[room].players[id] = { 
+    id, nickname, 
+    position  : { x, y }, 
+    color     : DEFAULTS.COLOR,
+    alive     : true
+  };
   
   // console.log("Join room", ROOMS[room]);
   console.log(id, "joined room", room, "as", nickname);
@@ -79,21 +85,56 @@ const setPosition = (socket, position) => {
   }
 
   const pickupKeys = Object.keys(ROOMS[room].pickups);
-
-  const senderPosition = ROOMS[room].players[id].position;
   for(var i = 0; i < pickupKeys.length; i++) {
     const p = pickupKeys[i];
     const pickup = ROOMS[room].pickups[p]
-    if(isTouching(pickup, senderPosition)) delete ROOMS[room].pickups[p];
+    if(isTouching(pickup, position)) delete ROOMS[room].pickups[p];
   }
 
   return ROOMS[room].players;
 }
 
 const setColor = (socket, color) => {
-  const { id, room} = socket;
+  const { id, room } = socket;
   if(!room) return;
   ROOMS[room].players[id].color = color;
 }
 
-module.exports = { ROOMS, createRoom, joinRoom, leaveRoom, setPosition, setColor };
+const setDeath = (socket) => {
+  const { id, room } = socket;
+  if(!room) return;
+  ROOMS[room].players[id].alive = false;
+  ROOMS[room].alive--;
+
+  if(ROOMS[room].alive === 0) return endGame(room, id);
+
+  return { ...ROOMS[room], playersList: getPlayers(room), interval: null };
+}
+
+const endGame = (room, id) => {
+  clearInterval(ROOMS[room].interval);
+
+  
+  ROOMS[room] = {
+    ...ROOMS[room],
+    interval    : null,
+    alive       : 0,
+    difficulty  : 0,
+    limit       : 0,
+    pickups     : {}
+  }
+  
+  const playerKeys = Object.keys(ROOMS[room].players);
+  for(var i = 0; i < playerKeys.length; i++) {
+    const p = playerKeys[i]
+    const [x, y] = randomSpawn();
+    
+    ROOMS[room].players[p].alive = true;
+    ROOMS[room].players[p].position = { x, y };
+  } 
+  
+  const message = ROOMS[room].players[id].nickname + " wins!";
+  return { ...ROOMS[room], playersList: getPlayers(room), end : true, message }
+}
+
+module.exports = { ROOMS, createRoom, joinRoom, leaveRoom, setPosition, setColor, setDeath };

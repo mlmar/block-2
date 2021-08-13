@@ -1,30 +1,22 @@
-import { DEFAULTS, SPAWN } from './Rules.js';
+import { DEFAULTS, GRID } from './Rules.js';
 import CanvasUtil from '../modules/canvas/CanvasUtil.js';
 const canvasUtil = new CanvasUtil();
 
-if(DEFAULTS.WIDTH % DEFAULTS.STEP || DEFAULTS.WIDTH % DEFAULTS.STEP) {
-  console.warn("Height or width must be divisible by step");
-}
 
-const GRID = {
-  width   : DEFAULTS.WIDTH / DEFAULTS.STEP,
-  height  : DEFAULTS.HEIGHT / DEFAULTS.STEP,
-  step    : DEFAULTS.STEP
-}
-
-const MAX_AGE = 500;
-let PLAYER = { id: null, x: SPAWN.x, y: SPAWN.y, color: DEFAULTS.COLOR }
+let PLAYER = { id: null, position: { x : null, y : null}, color: DEFAULTS.COLOR, alive: true }
 let PLAYERS = {};
 let BLOCKS = {};
 let PICKUPS = {};
 let LIMIT = 0;
 
 
+let PAUSED = false;
+
+
 export const reset = () => {
-  PLAYER = { ...PLAYER, x: SPAWN.x, y: SPAWN.y }
-  PLAYERS = {};
+  PLAYER = { ...PLAYER, alive: true };
   BLOCKS = {};
-  PICKUPS = null;
+  PICKUPS = {};
   LIMIT = 0;
 }
 
@@ -36,8 +28,10 @@ export const setCanvas = (canvasRef) => {
 }
 
 export const drawPlayer = () => {
-  const { x, y } = PLAYER;
-  canvasUtil.rect(x, y, GRID.step, GRID.step, PLAYER.color);
+  if(!PLAYER.alive) return;
+
+  const { x, y } = PLAYER.position;
+  canvasUtil.rect(x, y, GRID.STEP, GRID.STEP, PLAYER.color);
 }
 
 export const drawBlock = (block) => {
@@ -59,20 +53,18 @@ const handleBlocks = (elapsed) => {
     BLOCKS[key].age += elapsed;
     
     drawBlock(BLOCKS[key]);
-    isPlayerBlockColliding(BLOCKS[key])
-    if(BLOCKS[key].age > MAX_AGE) delete BLOCKS[key];
+    if(isPlayerBlockColliding(BLOCKS[key])) handlePlayerDeath();
+    if(BLOCKS[key].age > DEFAULTS.MAX_AGE) delete BLOCKS[key];
   }
 }
 
 const handlePlayers = () => {
   for(const p in PLAYERS) {
     const player = PLAYERS[p];
-
     
-    
-    if(PLAYER.id !== player.id) {
+    if(PLAYER.id !== player.id && player.alive) {
       if(isTouching(player.position, PLAYER)) console.log("TOUCHING PLAYERS");
-      canvasUtil.rect(player.position.x, player.position.y, GRID.step, GRID.step, player.color);
+      canvasUtil.rect(player.position.x, player.position.y, GRID.STEP, GRID.STEP, player.color);
     }
   }
 }
@@ -83,35 +75,41 @@ const handlePickups = () => {
   for(var i = 0; i < pickupKeys.length; i++) {
     const p = pickupKeys[i];
     const { x, y, color } = PICKUPS[p];
-    canvasUtil.rect(x, y, GRID.step, GRID.step, color);
+    canvasUtil.rect(x, y, GRID.STEP, GRID.STEP, color);
   }
 }
 
 // check if player is out of bounds
 const handleOutOfBounds = () => {
-  const BELOW_X = PLAYER.x < (LIMIT * GRID.step);
-  const ABOVE_X = PLAYER.x >= DEFAULTS.WIDTH - (LIMIT * GRID.step);
+  const playerX = PLAYER.position.x;
+  const playerY = PLAYER.position.y;
+  
+  const BELOW_X = playerX < (LIMIT * GRID.STEP);
+  const ABOVE_X = playerX >= DEFAULTS.WIDTH - (LIMIT * GRID.STEP);
 
-  const BELOW_Y = PLAYER.y < (LIMIT * GRID.step);
-  const ABOVE_Y = PLAYER.y >= DEFAULTS.HEIGHT - (LIMIT * GRID.step);
-  if(BELOW_X || ABOVE_X || BELOW_Y || ABOVE_Y) console.log("Player out of bounds")
+  const BELOW_Y = playerY < (LIMIT * GRID.STEP);
+  const ABOVE_Y = playerY >= DEFAULTS.HEIGHT - (LIMIT * GRID.STEP);
+  if(BELOW_X || ABOVE_X || BELOW_Y || ABOVE_Y) handlePlayerDeath();
 }
 
 
-// checks if a blockis colliding with the player
+// checks if a block is colliding with the player
 const isPlayerBlockColliding = (block) => {
-  const BETWEEN_X = block.x <= PLAYER.x && PLAYER.x < block.x + block.width;
-  const BETWEEN_Y = block.y <= PLAYER.y && PLAYER.y < block.y + block.height;
-  if(BETWEEN_X && BETWEEN_Y) console.log("COLLISION");
+  const playerX = PLAYER.position.x;
+  const playerY = PLAYER.position.y;
+
+  const BETWEEN_X = block.x <= playerX && playerX < block.x + block.width;
+  const BETWEEN_Y = block.y <= playerY && playerY < block.y + block.height;
+  return BETWEEN_X && BETWEEN_Y;
 }
 
 // checks if two items of the same size are touching (e.g pickups and players)
 const isTouching = (item1, item2) => {
   const SAME_SPOT = (item1.x === item2.x) && (item1.y === item2.y);
-  const UP_SPOT = (item1.x === item2.x) && (item1.y - GRID.step === item2.y);
-  const DOWN_SPOT = (item1.x === item2.x) && (item1.y + GRID.step === item2.y);
-  const LEFT_SPOT = (item1.x - GRID.step === item2.x) && (item1.y === item2.y);
-  const RIGHT_SPOT = (item1.x + GRID.step === item2.x) && (item1.y === item2.y);
+  const UP_SPOT = (item1.x === item2.x) && (item1.y - GRID.STEP === item2.y);
+  const DOWN_SPOT = (item1.x === item2.x) && (item1.y + GRID.STEP === item2.y);
+  const LEFT_SPOT = (item1.x - GRID.STEP === item2.x) && (item1.y === item2.y);
+  const RIGHT_SPOT = (item1.x + GRID.STEP === item2.x) && (item1.y === item2.y);
 
   return SAME_SPOT || UP_SPOT || DOWN_SPOT || LEFT_SPOT || RIGHT_SPOT;
 }
@@ -120,43 +118,63 @@ const isTouching = (item1, item2) => {
 /*** SETTERS ***/
 
 
-export const setPlayerID = (id) => {
-  PLAYER.id = id
+export const setPlayer = (player) => {
+  PLAYER = { ...PLAYER, ...player};
 }
 
 export const setPlayerColor = (color) => {
   PLAYER.color = color;
 }
 
+export const setPlayerSpawn = (position) => {
+  PLAYER.position = position;
+}
+
 export const setKeys = (key) => {
-  if(key === "w" || key === "ArrowUp") PLAYER.y -= GRID.step;
-  if(key === "s" || key === "ArrowDown") PLAYER.y += GRID.step;
-  if(key === "a" || key === "ArrowLeft") PLAYER.x -= GRID.step;
-  if(key === "d" || key === "ArrowRight") PLAYER.x += GRID.step;
-  return { x: PLAYER.x, y : PLAYER.y };
+  if(!PLAYER.alive || PAUSED) return;
+  
+  if(key === "w" || key === "ArrowUp") PLAYER.position.y -= GRID.STEP;
+  if(key === "s" || key === "ArrowDown") PLAYER.position.y += GRID.STEP;
+  if(key === "a" || key === "ArrowLeft") PLAYER.position.x -= GRID.STEP;
+  if(key === "d" || key === "ArrowRight") PLAYER.position.x += GRID.STEP;
+  return PLAYER.position;
 }
 
 export const setPlayerPositions = (players) => {
   PLAYERS = players;
 }
 
-export const setBlocks = (blocks) => {
-  BLOCKS = {...blocks, ...BLOCKS};
+export const setGame = (game) => {
+  BLOCKS = {...game?.blocks, ...BLOCKS};
+  PICKUPS = game?.pickups;
+  LIMIT = game?.limit;
 }
 
-export const setPickups = (pickups) => {
-  PICKUPS = pickups;
+
+
+/*** DEATH ***/
+
+let onDeath = null;
+
+export const setOnDeath = (func) => {
+  onDeath = func;
 }
 
-export const setLimit = (limit) => {
-  LIMIT = limit;
-}
+const handlePlayerDeath = () => {
+  if(!PLAYER.alive) return;
 
+  PLAYER.alive = false;
+  if(onDeath) onDeath();
+}
 
 
 
 /*** GAMELOOP ***/
 
+
+export const setPause = (bool) => {
+  PAUSED = bool
+}
 
 let LAST = 0, ELAPSED = 0;
 export const animate = () => {
@@ -164,14 +182,16 @@ export const animate = () => {
     ELAPSED = (time - LAST) / 16;
     LAST = time;
 
-    canvasUtil.clear();
-    handlePickups();
-    handlePlayers();
-    drawPlayer();
-    handleOutOfBounds();
-    handleBlocks(ELAPSED);
+    if(!PAUSED)  {
+      canvasUtil.clear();
+      handlePickups();
+      handlePlayers();
+      drawPlayer();
+      handleOutOfBounds();
+      handleBlocks(ELAPSED);
+    }
 
-    // canvasUtil.rect(LIMIT * GRID.step, LIMIT * GRID.step, DEFAULTS.WIDTH - (LIMIT * GRID.step * 2), DEFAULTS.WIDTH - (LIMIT * GRID.step * 2), "rgb(0,0,0,.3)");
+    // canvasUtil.rect(LIMIT * GRID.STEP, LIMIT * GRID.STEP, DEFAULTS.WIDTH - (LIMIT * GRID.STEP * 2), DEFAULTS.WIDTH - (LIMIT * GRID.STEP * 2), "rgb(0,0,0,.3)");
 
     requestAnimationFrame(render);
   }

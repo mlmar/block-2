@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const io = require('socket.io')(server, { transports: ['websocket'] });
-const { ROOMS, joinRoom, leaveRoom, setPosition, setColor } = require('../util/RoomsUtil.js');
+const { ROOMS, joinRoom, leaveRoom, setPosition, setColor, setDeath } = require('../util/RoomsUtil.js');
 const { startGeneration } = require('../util/GameUtil.js');
 
 /*** SOCKET SERVICE ***/
@@ -37,8 +37,9 @@ io.on('connection', (socket) => {
     io.to(room).emit('START_GAME');
     ROOMS[room].alive = Object.keys(ROOMS[room].players).length;
     ROOMS[room].interval = startGeneration((blocks) => {
+      const { limit, pickups, alive} = ROOMS[room];
       if(ROOMS[room]) {
-        io.to(room).emit('GENERATION', { blocks, limit : ROOMS[room].limit, pickups : ROOMS[room].pickups });
+        io.to(room).emit('GENERATION', { blocks, limit, pickups, alive });
       } else {
         clearInterval(this);
       }
@@ -53,8 +54,14 @@ io.on('connection', (socket) => {
 
   socket.on('PLAYER_COLOR', (color) => {
     setColor(socket, color);
-  })
+  });
 
+  socket.on('PLAYER_DEATH', () => {
+    const room = socket.room;
+    const response = setDeath(socket);
+    
+    io.to(room).emit('ROOM_UPDATE', response);
+  });
 });
 
 module.exports = router;

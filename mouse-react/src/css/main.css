@@ -48,6 +48,7 @@ label, p, input {
 }
 
 .bold { font-weight: 700 }
+.huge { font-size: 4rem}
 .large { font-size: 2rem }
 .medium { font-size: 1.5rem }
 
@@ -109,9 +110,9 @@ label, p, input {
 /*** ROOM ***/
 
 .room {
-  align-items: center;
   padding: 1rem;
   transition: background .5s ease;
+  align-items: center;
 }
 
 .room.dark {
@@ -151,14 +152,52 @@ label, p, input {
 
 .canvas-wrapper {
   display: flex;
-  margin: auto;
   overflow: hidden;
-  justify-self: center;
   align-items: center;
+  margin: auto;
 }
 
 .canvas-wrapper canvas {
   outline: none;
   image-rendering: pixelated;
   transition: transform 1s linear;
+  height: 90vmin;
+}
+
+.animate-shake {
+  animation: shake .3s linear;
+}
+
+/*** END SCREEN ***/
+
+.end-screen {
+  width: 100%;
+  height: 100%;
+
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 99;
+}
+
+.end-screen label {
+  color: var(--bg) !important;
+  margin-bottom: 1rem;
+}
+
+.end-screen .round-btn:not(:hover) {
+  background: none;
+}
+
+.end-screen ~ * {
+  filter: blur(2px);
+}
+
+@keyframes shake {
+  0% { transform: rotate(2deg); }
+  50% { transform: rotate(-2deg); }
+  100% { transform: rotate(0deg); }
 }

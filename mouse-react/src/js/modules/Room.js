@@ -6,7 +6,7 @@ import { DEFAULTS } from '../util/Rules.js';
 import { STRIPPED_HOME_URL } from '../util/System.js';
 import { SOCKET } from '../util/SocketUtil.js';
 
-import { setPlayerID, setPlayerColor, setKeys, setLimit, setBlocks, setPickups, setPlayerPositions } from '../util/GameUtil.js';
+import { reset, setPlayer, setPlayerSpawn, setPlayerColor, setKeys, setPlayerPositions, setGame, setOnDeath, setPause } from '../util/GameUtil.js';
 
 import Lobby from './ui/Lobby.js';
 import Canvas from './canvas/Canvas.js';
@@ -18,7 +18,13 @@ const Room = ({ name }) => {
   const [host, setHost] = useState(null);
   const [players, setPlayers] = useState(null);
   const [color, setColor] = useState(DEFAULTS.COLOR);
+  
+  const [alive, setAlive] = useState(null);
   const [zoomMultiplier, setZoomMultiplier] = useState(0);
+  const [shake, setShake] = useState(null);
+
+  const [endScreenMsg, setEndScreenMsg] = useState(null);
+  const [endScreenVisible, setEndScreenVisible] = useState(false);
   
   useEffect(() => {
     if(!name) return;
@@ -28,20 +34,30 @@ const Room = ({ name }) => {
 
     SOCKET.on('START_GAME', () => {
       setView(1);
+      setEndScreenVisible(false);
+      setPause(false);
     });
 
     SOCKET.on('ROOM_UPDATE', (response) => {
+      if(response.end) {
+        setEndScreenMsg(response.message)
+        setPause(true);
+        setEndScreenVisible(true);
+        reset();
+      }
+  
       setHost(response?.host);
       setPlayers(response?.playersList);
+  
       setPlayerPositions(response?.players);
-      if(response.difficulty > 0) setView(1);
+      setPlayerSpawn(response?.players[SOCKET.id]?.position);
+      if(response?.difficulty > 0) setView(1);
     });
 
     SOCKET.on('GENERATION', (response) => {
-      setLimit(response.limit);
-      setBlocks(response.blocks);
-      setPickups(response.pickups)
-      setZoomMultiplier(response.limit)
+      setGame(response);
+      setZoomMultiplier(response?.limit);
+      setAlive(response?.alive);
     });
 
     SOCKET.on('POSITIONS', setPlayerPositions);
@@ -49,21 +65,24 @@ const Room = ({ name }) => {
   }, [room, name]);
 
   useEffect(() => {
-    setPlayerID(SOCKET.id);
+    setPlayer({ id: SOCKET.id });
+    setOnDeath(handleDeath);
   }, []);
 
   const handleStart = () => {
     SOCKET.emit('START_GAME');
   }
 
-  // const handleMouseMove = (position) => {
-  //   setPlayerPosition(position.x, position.y)
-  //   SOCKET.emit('PLAYER_POSITION', position);
-  // }
+  /*
+  const handleMouseMove = (position) => {
+    setPlayerPosition(position.x, position.y)
+    SOCKET.emit('PLAYER_POSITION', position);
+  }
+  */
 
   const handleKey = (key) => {
     const position = setKeys(key);
-    SOCKET.emit('PLAYER_POSITION', position);
+    if(position) SOCKET.emit('PLAYER_POSITION', position);
   }
 
   const handleColorChange = (color) => {
@@ -72,12 +91,31 @@ const Room = ({ name }) => {
     SOCKET.emit("PLAYER_COLOR", color);
   }
 
+  const handleDeath = () => {
+    SOCKET.emit("PLAYER_DEATH");
+    setShake("animate-shake");
+    setTimeout(() => { setShake(null) }, 500);
+  }
+
+  const handleEndScreen = () => {
+    setEndScreenVisible(false);
+    setView(0);
+    setZoomMultiplier(0);
+    setPause(false);
+  }
+
   const getView = () => {
     if(view === 1) {
       return (
         <>
-          <label className="large bold"> test </label>
-          <Canvas onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
+          { endScreenVisible &&
+            <div className="end-screen flex-col">
+              <label className="huge bold"> {endScreenMsg} </label>
+              <button className="round-btn large bold" onClick={handleEndScreen}> back to lobby </button>
+            </div>
+          }
+          <label className="large bold"> {alive} player{alive > 1 ? "s" : ""} remaining </label>
+          <Canvas className={shake} onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
         </>
       )
     } else {

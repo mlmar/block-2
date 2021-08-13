@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { animate, setCanvas } from '../../util/GameUtil.js';
 import { DEFAULTS } from '../../util/Rules.js';
 
-const Canvas = ({ width, height, onMouseMove, onKey, zoomMultiplier}) => {
+const Canvas = ({ width, height, onMouseMove, onKey, zoomMultiplier, className}) => {
   const canvasRef = useRef(null);
   const position = useRef(null);
 
@@ -42,6 +42,7 @@ const Canvas = ({ width, height, onMouseMove, onKey, zoomMultiplier}) => {
   return (
     <div className="canvas-wrapper">
       <canvas 
+        className={className || ""}
         width={DEFAULTS.WIDTH} 
         height={DEFAULTS.HEIGHT} 
         onMouseMove={handleMouseMove}

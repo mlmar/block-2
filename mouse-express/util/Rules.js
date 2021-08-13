@@ -20,4 +20,10 @@ const SPAWN = {
   y : Math.floor(GRID.HEIGHT / 2) * GRID.STEP
 }
 
-module.exports = { DEFAULTS, GRID, SPAWN };
+const randomSpawn = () => {
+  const x = Math.floor(Math.random() * (GRID.WIDTH - 2) + 2) * GRID.STEP;
+  const y = Math.floor(Math.random() * (GRID.HEIGHT - 2) + 2) * GRID.STEP;
+  return [x, y];
+}
+
+module.exports = { DEFAULTS, GRID, SPAWN, randomSpawn };

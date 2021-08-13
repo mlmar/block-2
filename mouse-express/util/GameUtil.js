@@ -77,6 +77,20 @@ const generatePickup = (type, limit) => {
   }
 }
 
+const handleBlockDirections = (room) => {
+  const limit = ROOMS[room].limit;
+  
+  const directions = ["up", "down", "left", "right"];
+  let direction;
+
+  if(limit < 4) direction = directions[limit];
+  else direction = "random";
+
+  const amount = Math.round(DEFAULTS.AMOUNT - limit * 5 / GRID.WIDTH);
+  blocks = generateBlocks(DEFAULTS.AMOUNT, direction, limit);
+  return blocks;
+}
+
 const handlePickups = (room, limit) => {
   const pickupKeys = Object.keys(ROOMS[room].pickups);
 
@@ -107,13 +121,13 @@ const startGeneration = (callback, room) => {
   if(!callback) return;
 
   return setInterval(function() {
-    const amount = Math.round(DEFAULTS.AMOUNT - ROOMS[room].limit * 5 / GRID.WIDTH);
-    blocks = generateBlocks(amount, "random", ROOMS[room].limit);
+
+    blocks = handleBlockDirections(room);
+
     ROOMS[room].difficulty++;
     ROOMS[room].limit = Math.floor(ROOMS[room].difficulty / DEFAULTS.DIFFICULTY_INTERVAL);
 
     handlePickups(room, ROOMS[room].limit);
-
 
     callback(blocks);
   }, DEFAULTS.INTERVAL)
