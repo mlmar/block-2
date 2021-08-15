@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 const Controls = ({ onPress }) => {
   const handleControls = (event) => {
     const { id } = event.target;
