@@ -230,13 +230,9 @@ label, p, input {
   .huge { font-size: 2rem }
   .large { font-size: 1.4rem }
   .medium { font-size: 1.3rem }
-  
+
   .canvas-wrapper canvas {
     height: 97vmin;
-  }
-
-  .room {
-    padding: 0;
   }
 
   .controls {
@@ -254,14 +250,14 @@ label, p, input {
   }
 
   .controls #w {
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
   }
 
   .controls button {
     display: flex;
     height: 2.8rem;
     border-radius: 2rem;
-    background: gray;
+    background: rgba(128, 128, 128, 0.5);
   }
   
 }
