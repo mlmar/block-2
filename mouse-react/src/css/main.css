@@ -116,8 +116,8 @@ label, p, input {
 /*** ROOM ***/
 
 .room {
-  padding: 1rem;
   transition: background .5s ease;
+  padding: 1rem;
 }
 
 .room.dark {
@@ -221,8 +221,6 @@ label, p, input {
 
 @media screen 
   and (max-width: 1000px) {
-
-
 
   .huge { font-size: 2rem }
   .large { font-size: 1.4rem }

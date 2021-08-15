@@ -108,30 +108,28 @@ const Room = ({ name }) => {
   const getView = () => {
     if(view === 1) {
       return (
-        <>
+        <div className="game flex-col flex-fill">
           { endScreenVisible &&
             <div className="end-screen flex-col">
               <label className="huge bold"> {endScreenMsg} </label>
               <button className="round-btn large bold" onClick={handleEndScreen}> back to lobby </button>
             </div>
           }
-          <div className="game flex-col flex-fill">
-            <label className="large bold center-text"> {alive} player{alive > 1 ? "s" : ""} remaining </label>
-            <Canvas className={shake} onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
-            <Controls onPress={handleKey}/>
-          </div>
-        </>
+          <label className="large bold center-text"> {alive} player{alive > 1 ? "s" : ""} remaining </label>
+          <Canvas className={shake} onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
+          <Controls onPress={handleKey}/>
+        </div>
       )
     } else {
       return (
-        <>
+        <div className="flex-col flex-fill">
           <label className="large bold center-text"> {STRIPPED_HOME_URL}/{room} </label>
           <Lobby id={SOCKET.id} players={players} color={color} onChange={handleColorChange}>
             { (host?.id === SOCKET.id) &&
               <button className="round-btn large bold" onClick={handleStart}> start </button>
             }
           </Lobby>
-        </>
+        </div>
       )
     }
   }

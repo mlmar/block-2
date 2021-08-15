@@ -4,8 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import initReactFastclick from 'react-fastclick';
-initReactFastclick();
+import FastClick from 'fastclick';
+
+window.addEventListener('load', () => {
+  FastClick.attach(document.body);
+}, false);
 
 ReactDOM.render(
   <React.StrictMode>
