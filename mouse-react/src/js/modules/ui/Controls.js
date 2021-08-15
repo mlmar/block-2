@@ -1,4 +1,11 @@
+import { useEffect } from "react";
+import FastClick from 'fastclick';
+
 const Controls = ({ onPress }) => {
+  useEffect(() => {
+    FastClick.attach(document.body);
+  }, [])
+  
   const handleControls = (event) => {
     const { id } = event.target;
     if(onPress) onPress(id);

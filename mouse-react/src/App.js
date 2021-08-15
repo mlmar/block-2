@@ -6,16 +6,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './js/modules/Home.js';
 import Room from './js/modules/Room.js';
 
-import FastClick from 'fastclick';
-
-
 const App = () => {
   const [name, setName] = useState(null); // user's display name
-
-  useEffect(() => {
-    FastClick.attach(document.body);
-  }, [])
-
   return (
     <div className="app">
       <BrowserRouter>
