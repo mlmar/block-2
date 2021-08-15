@@ -10,6 +10,7 @@ import { reset, setPlayer, setPlayerSpawn, setPlayerColor, setKeys, setPlayerPos
 
 import Lobby from './ui/Lobby.js';
 import Canvas from './canvas/Canvas.js';
+import Controls from './ui/Controls.js';
 
 const Room = ({ name }) => {
   const { room } = useParams();
@@ -114,14 +115,17 @@ const Room = ({ name }) => {
               <button className="round-btn large bold" onClick={handleEndScreen}> back to lobby </button>
             </div>
           }
-          <label className="large bold"> {alive} player{alive > 1 ? "s" : ""} remaining </label>
-          <Canvas className={shake} onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
+          <div className="game flex-col flex-fill">
+            <label className="large bold center-text"> {alive} player{alive > 1 ? "s" : ""} remaining </label>
+            <Canvas className={shake} onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
+            <Controls onPress={handleKey}/>
+          </div>
         </>
       )
     } else {
       return (
         <>
-          <label className="large bold"> {STRIPPED_HOME_URL}/{room} </label>
+          <label className="large bold center-text"> {STRIPPED_HOME_URL}/{room} </label>
           <Lobby id={SOCKET.id} players={players} color={color} onChange={handleColorChange}>
             { (host?.id === SOCKET.id) &&
               <button className="round-btn large bold" onClick={handleStart}> start </button>

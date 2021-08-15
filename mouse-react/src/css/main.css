@@ -39,6 +39,10 @@ label, p, input {
   color: black;
 }
 
+.mobile {
+  display: none;
+}
+
 /*** FORMATTING AND VISIBILITY ***/
 
 .hide {
@@ -55,6 +59,8 @@ label, p, input {
 .flex, .flex-col { display: flex }
 .flex-col { flex-direction: column }
 .flex-fill { flex: 1 1 }
+
+.center-text { text-align: center;}
 
 /*** INPUTS ***/
 
@@ -112,7 +118,6 @@ label, p, input {
 .room {
   padding: 1rem;
   transition: background .5s ease;
-  align-items: center;
 }
 
 .room.dark {
@@ -124,6 +129,10 @@ label, p, input {
 }
 
 /*** LOBBY ***/
+
+.lobby {
+  align-items: center
+}
 
 .lobby button {
   width: 15rem;
@@ -148,13 +157,21 @@ label, p, input {
   cursor: pointer;
 }
 
+.game {
+  justify-content: center;
+}
+
+.game label {
+  margin-bottom: .5rem;
+} 
+
 /*** CANVAS ***/
 
 .canvas-wrapper {
   display: flex;
   overflow: hidden;
   align-items: center;
-  margin: auto;
+  align-self: center;
 }
 
 .canvas-wrapper canvas {
@@ -200,4 +217,46 @@ label, p, input {
   0% { transform: rotate(2deg); }
   50% { transform: rotate(-2deg); }
   100% { transform: rotate(0deg); }
+}
+
+@media screen 
+  and (max-width: 1000px) {
+
+  .huge { font-size: 2rem }
+  .large { font-size: 1.4rem }
+  .medium { font-size: 1.3rem }
+  
+  .canvas-wrapper canvas {
+    height: 97vmin;
+  }
+
+  .room {
+    padding: 0;
+  }
+
+  .controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    align-items: center;
+    padding: .5rem;
+  }
+
+  .controls > * {
+    flex: 1 1;
+    margin: .2rem;
+  }
+
+  .controls #w {
+    margin-bottom: 1rem;
+  }
+
+  .controls button {
+    display: flex;
+    height: 3rem;
+    border-radius: 2rem;
+    background: gray;
+  }
+  
 }
