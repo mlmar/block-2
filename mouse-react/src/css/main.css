@@ -223,9 +223,6 @@ label, p, input {
   and (max-width: 1000px) {
 
 
-  * {
-    user-select: none;
-  }
 
   .huge { font-size: 2rem }
   .large { font-size: 1.4rem }
@@ -242,6 +239,10 @@ label, p, input {
     width: 100%;
     align-items: center;
     padding: .5rem;
+  }
+
+  .game, .game * {
+    user-select: none;
   }
 
   .controls > * {
