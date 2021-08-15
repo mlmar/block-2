@@ -1,13 +1,19 @@
 import './css/main.css';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import FastClick from 'fastclick';
 
 import Home from './js/modules/Home.js';
 import Room from './js/modules/Room.js';
 
 const App = () => {
   const [name, setName] = useState(null); // user's display name
+
+  useEffect(() => {
+    FastClick.attach(document.body);
+  }, [])
+
   return (
     <div className="app">
       <BrowserRouter>
