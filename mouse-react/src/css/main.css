@@ -222,6 +222,11 @@ label, p, input {
 @media screen 
   and (max-width: 1000px) {
 
+
+  * {
+    user-select: none;
+  }
+
   .huge { font-size: 2rem }
   .large { font-size: 1.4rem }
   .medium { font-size: 1.3rem }
@@ -254,7 +259,7 @@ label, p, input {
 
   .controls button {
     display: flex;
-    height: 3rem;
+    height: 2.8rem;
     border-radius: 2rem;
     background: gray;
   }
