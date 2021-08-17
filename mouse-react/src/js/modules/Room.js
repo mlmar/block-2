@@ -78,7 +78,10 @@ const Room = ({ name }) => {
 
   useEffect(() => {
     setPlayer({ id: SOCKET.id });
-    setOnDeath(handleDeath);
+    setOnDeath(() => {
+      SOCKET.emit("PLAYER_DEATH");
+      handleShake();
+    });
   }, []);
 
   const handleStart = () => {
@@ -101,11 +104,6 @@ const Room = ({ name }) => {
     setColor(color);
     setPlayerColor(color);
     SOCKET.emit("PLAYER_COLOR", color);
-  }
-
-  const handleDeath = () => {
-    SOCKET.emit("PLAYER_DEATH");
-    handleShake();
   }
 
   const handleShake = () => {

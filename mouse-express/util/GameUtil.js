@@ -2,11 +2,13 @@ const ROOMS = require('./Rooms.js');
 const { DEFAULTS, GRID } = require('./Rules.js');
 const { isTouching } = require('./CollisionUtil.js');
 
-const ORANGE = "rgb(255, 204, 102)";
+const ORANGE = "rgb(244,67,54)";
+const GREEN = "rgb(76,175,80)";
+const PINK = "rgb(233,30,99)";
+const AQUA = "#00f1c8";
+const YELLOW = "rgb(255, 204, 102)";
 
-const COLORS = [
-  "rgb(245, 78, 66)", "rgb(24, 217, 62)", "rgb(3, 169, 244)", "rgb(255, 122, 244)",
-]
+const COLORS = [ ORANGE, GREEN, PINK, AQUA]
 
 const random = (max, min) => { return Math.floor(Math.random() * (max - (min || 0))) + (min || 0) }
 
@@ -72,7 +74,7 @@ const generatePickup = (type, limit) => {
     return {
       x: random(GRID.WIDTH - limit, limit) * GRID.STEP,
       y: random(GRID.HEIGHT - limit, limit) * GRID.STEP,
-      color: ORANGE
+      color: YELLOW
     }
   }
 }
