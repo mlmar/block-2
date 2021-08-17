@@ -135,6 +135,7 @@ label, p, input {
 .clipboard {
   align-items: center;
   cursor: pointer;
+  justify-content: center;
 }
 
 .clipboard span {
