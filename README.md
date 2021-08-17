@@ -4,13 +4,13 @@
 
 
 
-<img src="https://user-images.githubusercontent.com/63682846/129667450-a80c70cd-8821-4159-98e8-500f9b81a456.png" width=450/>
+<img src="https://user-images.githubusercontent.com/63682846/129668229-169569a6-126b-48de-abae-13f8c183e4a9.png" width=450/>
 
 
 
 ## Features
 - Create or join lobbies by entering a code at the homepage
-- Send anyone a link to the lobby by appending the lobby code at the end of homepage (e.g https://block10.herokuapp.com/test)
+- Send anyone a link to the lobby by appending the lobby code at the end of homepage (e.g https://block10.herokuapp.com/randomlobby)
 
 ## How to play
 - One person starts off as the bomb
