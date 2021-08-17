@@ -1,6 +1,6 @@
 # block
 - First version of block can be found [here](https://github.com/mlmar/Block.git)
-- This is an simplified alternative gamemode of the original game using socket.io for mutliplayer lobbies.
+- This is a simplified alternative gamemode of the original game using socket.io for mutliplayer lobbies.
 
 
 
