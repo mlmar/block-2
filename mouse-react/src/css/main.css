@@ -118,6 +118,7 @@ label, p, input {
 .room {
   transition: background .5s ease;
   padding: 1rem;
+  align-items: center;
 }
 
 .room.dark {
@@ -128,10 +129,56 @@ label, p, input {
   color: white;
 }
 
+
+/*** CLIPBOARD ***/
+
+.clipboard {
+  align-items: center;
+  cursor: pointer;
+}
+
+.clipboard span {
+  height: 1.2rem;
+  align-items: center;
+  margin-left: .5rem;
+}
+
+.clipboard span img {
+  display: flex;
+  height: 100%;
+}
+
+/*** INSTRUCTIONS ***/
+
+.instructions {
+  position: fixed;
+  transform: translateX(-50%) translateY(-50%);
+  top: 50%;
+  left: 50%;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+  padding: 1rem;
+  background: white;
+  min-width: 90vw;
+}
+
+.instructions .flex-col {
+  margin: 1rem 0;
+}
+
+.instructions .flex-col span {
+  color: red;
+}
+
+.instructions ~ * {
+  filter: blur(5px);
+}
+
 /*** LOBBY ***/
 
 .lobby {
-  align-items: center
+  align-items: center;
 }
 
 .lobby button {

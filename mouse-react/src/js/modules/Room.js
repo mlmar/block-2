@@ -3,7 +3,6 @@ import { useParams, Navigate } from 'react-router-dom';
 
 import { DEFAULTS } from '../util/Rules.js';
 
-import { STRIPPED_HOME_URL } from '../util/System.js';
 import { SOCKET } from '../util/SocketUtil.js';
 
 import { reset, setPlayer, setPlayerSpawn, setPlayerColor, setKeys, setPlayerPositions, setGame, setOnDeath, setPause } from '../util/GameUtil.js';
@@ -12,6 +11,8 @@ import Instructions from './ui/Instructions.js';
 import Lobby from './ui/Lobby.js';
 import Canvas from './canvas/Canvas.js';
 import Controls from './ui/Controls.js';
+import Clipboard from './ui/Clipboard.js';
+
 
 const Room = ({ name }) => {
   const { room } = useParams();
@@ -137,8 +138,7 @@ const Room = ({ name }) => {
     } else {
       return (
         <div className="flex-col flex-fill">
-          <label className="large bold center-text"> {STRIPPED_HOME_URL}/{room} </label>
-          <Instructions/>
+          <Clipboard room={room}/>
           <Lobby id={SOCKET.id} players={players} color={color} onChange={handleColorChange}>
             { (host?.id === SOCKET.id) &&
               <button className="round-btn large bold" onClick={handleStart}> start </button>
@@ -154,6 +154,7 @@ const Room = ({ name }) => {
   let classNames = "room flex-col flex-fill" + (view === 1 ? " dark" : "");
   return (
     <div className={classNames}>
+      <Instructions/>
       {getView()}
     </div>
   )
