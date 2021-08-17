@@ -7,7 +7,7 @@ const DEFAULTS = {
   SPEED               : 5,
   DIFFICULTY_INTERVAL : 20,
   COLOR               : "#3c3cff",
-  BOMB_TIMER          : 26
+  BOMB_TIMER          : 41
 }
 
 const GRID = {

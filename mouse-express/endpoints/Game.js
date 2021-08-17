@@ -36,7 +36,10 @@ io.on('connection', (socket) => {
     io.to(room).emit('START_GAME');
 
     const genFunc = (response) => { io.to(room).emit('GENERATION', response); }
-    const bombFunc = (response) => { io.to(room).emit('ROOM_UPDATE', response); }
+    const bombFunc = (response) => { 
+      socket.emit('EXPLODE');
+      io.to(room).emit('ROOM_UPDATE', response); 
+    }
 
     startGame(room, genFunc, bombFunc);
   });
@@ -48,7 +51,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('PLAYER_COLOR', (color) => {
-    setColor(socket, color);
+    const room = socket.room;
+    const response = setColor(socket, color);
+    io.to(room).emit('PLAYER_COLORS', response);
   });
 
   socket.on('PLAYER_DEATH', () => {

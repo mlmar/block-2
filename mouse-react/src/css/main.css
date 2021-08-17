@@ -161,7 +161,7 @@ label, p, input {
   justify-content: center;
 }
 
-.game label {
+.room .large {
   margin-bottom: .5rem;
 } 
 

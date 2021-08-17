@@ -72,6 +72,14 @@ class CanvasUtil {
     this.ctx.fillStyle = color || this.colors.rect ;
     this.ctx.fillRect(x, y, width, height);
   }
+
+  outline(x, y, width, height, color ){
+    this.ctx.translate(.5,.5);
+    this.ctx.strokeStyle = color || this.colors.rect ;
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(x, y, width, height);
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
   
   w() { return this.canvas.width; }
   h() { return this.canvas.height }

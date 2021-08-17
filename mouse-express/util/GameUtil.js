@@ -27,7 +27,7 @@ const getBlock = (direction, limit) => {
 
   if(direction === "up" || direction === "down") {
     width = GRID.STEP;
-    height = random(GRID.HEIGHT * .6, GRID.STEP) * GRID.STEP;
+    height = random(GRID.HEIGHT * .5, GRID.STEP) * GRID.STEP;
     
     const offset = Math.abs(DEFAULTS.HEIGHT - height) / 2;
 
@@ -39,7 +39,7 @@ const getBlock = (direction, limit) => {
       y: direction === "up" ? -DEFAULTS.SPEED : DEFAULTS.SPEED,
     }
   } else {
-    width = random(GRID.WIDTH * .6, GRID.STEP) * GRID.STEP;
+    width = random(GRID.WIDTH * .5, GRID.STEP) * GRID.STEP;
     height = GRID.STEP;
 
     const offset = Math.abs(DEFAULTS.WIDTH - width) / 2;

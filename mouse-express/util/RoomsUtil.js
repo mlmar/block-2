@@ -7,15 +7,14 @@ const getPlayers = (room) => {
   if(!ROOMS[room]) return;
   let _players = [];
   for(const p in ROOMS[room].players) {
-    const { id, nickname } = ROOMS[room].players[p];
-    _players.push({ id, nickname });
+    const { id, nickname, color } = ROOMS[room].players[p];
+    _players.push({ id, nickname, color });
   }
   return _players;
 }
 
-const getRandomPlayer = (room) => {
-  let playerIds = Object.keys(ROOMS[room].players);
-  playerIds.filter((id) => ROOMS[room].players[id].alive);
+const getRandomPlayer = (room, exclude) => {
+  const playerIds = Object.keys(ROOMS[room].players).filter((id) => ROOMS[room].players[id].alive && id !== exclude);
   const randomId = playerIds[Math.floor(Math.random() * playerIds.length)];
   const randomPlayer = ROOMS[room].players[randomId];
   return randomPlayer;
@@ -55,7 +54,7 @@ const joinRoom = ({ room, id, nickname}) => {
   return { ...ROOMS[room], playersList: getPlayers(room), interval: null };
 }
 
-// delete room if user is last user in room, otherwise delete user and find new host if necessary
+// delete room if user is last user in room, otherwise delete user, decrement alive, find new host and bomb if necessary
 const leaveRoom = ({ room, id, nickname }) => {
   if(!room) return;
 
@@ -65,12 +64,17 @@ const leaveRoom = ({ room, id, nickname }) => {
     if(ROOMS[room].interval) clearInterval(ROOMS[room].interval)
     delete ROOMS[room];
   } else if(length > 1) {
+    if(ROOMS[room].players[id].alive) ROOMS[room].alive--;
     delete ROOMS[room].players[id];
 
     if(ROOMS[room].host.id === id) {
       const randomPlayer = getRandomPlayer(room);
       ROOMS[room].host = { id : randomPlayer.id, nickname: randomPlayer.nickname};
       console.log("Chose", ROOMS[room].host.nickname, "as new host of", room);
+    }
+
+    if(ROOMS[room].bomb?.id === id) {
+      setBomb(room);
     }
   }
   
@@ -99,7 +103,11 @@ const setPosition = (socket, position) => {
     if(isTouching(pickup, position)) {
       delete ROOMS[room].pickups[p];
       if(ROOMS[room].bomb?.id === id) {
-        setBomb(room);
+        if(ROOMS[room].alive > 1) { 
+          setBomb(room);
+        } else {
+          ROOMS[room].bomb = { ...ROOMS[room].bomb, timer: DEFAULTS.BOMB_TIMER };
+        } 
       }
     }
   }
@@ -109,14 +117,25 @@ const setPosition = (socket, position) => {
 
 // assign new bomb
 const setBomb = (room) => {
-  const { id, nickname } = getRandomPlayer(room);
-  ROOMS[room].bomb = { id, nickname, timer: DEFAULTS.BOMB_TIMER }
+  const { id, nickname } = getRandomPlayer(room, ROOMS[room].bomb?.id);
+  ROOMS[room].bomb = { id, nickname, timer: DEFAULTS.BOMB_TIMER };
 }
 
 const setColor = (socket, color) => {
   const { id, room } = socket;
   if(!room) return;
   ROOMS[room].players[id].color = color;
+  return { players: ROOMS[room].players, playersList: getPlayers(room)};
+}
+
+const setExplode = ({ id, room }) => {
+  if(!room) return;
+  ROOMS[room].players[id].alive = false;
+  ROOMS[room].alive--;
+
+  if(ROOMS[room].alive === 0) return endGame(room, id);
+
+  return { ...ROOMS[room], playersList: getPlayers(room), interval: null };
 }
 
 const setDeath = ({ id, room }) => {
@@ -125,6 +144,10 @@ const setDeath = ({ id, room }) => {
   ROOMS[room].alive--;
 
   if(ROOMS[room].alive === 0) return endGame(room, id);
+
+  if(id === ROOMS[room].bomb?.id) {
+    setBomb(room);
+  }
 
   return { ...ROOMS[room], playersList: getPlayers(room), interval: null };
 }
@@ -138,8 +161,8 @@ const startGame = (room, genFunc, bombFunc) => {
       // if a bomb doesn't exist or bomb timer exceeds maximum
       if(!bomb || bomb?.timer === 0) {
         if(bomb) { // kill current bomb
-          const deathResponse = setDeath({ id: bomb.id, room });
-          if(deathResponse.end) bombFunc(deathResponse);
+          const deathResponse = setExplode({ id: bomb.id, room });
+          bombFunc(deathResponse);
         }
 
         setBomb(room);

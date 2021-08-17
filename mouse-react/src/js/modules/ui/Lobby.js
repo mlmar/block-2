@@ -9,7 +9,7 @@ const Lobby = ({ id, players, children, color, onChange }) => {
       <div className="player-list flex-col"> 
         { players?.map((p) => {
           const isPlayer = p.id === id;
-          const style = isPlayer ? { color } : null;
+          const style = { color : p.color };
           const selected = isPlayer ? " bold" : "";
           const picker = isPlayer  ? (
             <span> <input type="color" value={color} onChange={handleChange}/> </span>

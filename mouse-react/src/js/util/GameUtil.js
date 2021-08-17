@@ -7,6 +7,7 @@ let PLAYER = { id: null, position: { x : null, y : null}, color: DEFAULTS.COLOR,
 let PLAYERS = {};
 let BLOCKS = {};
 let PICKUPS = {};
+let BOMB = {};
 let LIMIT = 0;
 
 
@@ -17,6 +18,7 @@ export const reset = () => {
   PLAYER = { ...PLAYER, alive: true };
   BLOCKS = {};
   PICKUPS = {};
+  BOMB = {};
   LIMIT = 0;
 }
 
@@ -32,6 +34,8 @@ export const drawPlayer = () => {
 
   const { x, y } = PLAYER.position;
   canvasUtil.rect(x, y, GRID.STEP, GRID.STEP, PLAYER.color);
+
+  if(BOMB?.id === PLAYER.id) canvasUtil.outline(x, y, GRID.STEP, GRID.STEP, "RED");
 }
 
 export const drawBlock = (block) => {
@@ -65,6 +69,7 @@ const handlePlayers = () => {
     if(PLAYER.id !== player.id && player.alive) {
       if(isTouching(player.position, PLAYER)) console.log("TOUCHING PLAYERS");
       canvasUtil.rect(player.position.x, player.position.y, GRID.STEP, GRID.STEP, player.color);
+      if(BOMB?.id === player.id) canvasUtil.outline(player.position.x, player.position.y, GRID.STEP, GRID.STEP, "RED");
     }
   }
 }
@@ -147,6 +152,7 @@ export const setPlayerPositions = (players) => {
 export const setGame = (game) => {
   BLOCKS = {...game?.blocks, ...BLOCKS};
   PICKUPS = game?.pickups;
+  BOMB = game?.bomb;
   LIMIT = game?.limit;
 }
 
