@@ -1,4 +1,4 @@
-const { ROOMS } = require('./RoomsUtil.js');
+const ROOMS = require('./Rooms.js');
 const { DEFAULTS, GRID } = require('./Rules.js');
 const { isTouching } = require('./CollisionUtil.js');
 
@@ -121,7 +121,6 @@ const startGeneration = (callback, room) => {
   if(!callback) return;
 
   return setInterval(function() {
-
     blocks = handleBlockDirections(room);
 
     ROOMS[room].difficulty++;

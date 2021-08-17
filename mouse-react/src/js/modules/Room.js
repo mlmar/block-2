@@ -20,7 +20,7 @@ const Room = ({ name }) => {
   const [players, setPlayers] = useState(null);
   const [color, setColor] = useState(DEFAULTS.COLOR);
   
-  const [alive, setAlive] = useState(null);
+  const [bomb, setBomb] = useState(null);
   const [zoomMultiplier, setZoomMultiplier] = useState(0);
   const [shake, setShake] = useState(null);
 
@@ -58,7 +58,7 @@ const Room = ({ name }) => {
     SOCKET.on('GENERATION', (response) => {
       setGame(response);
       setZoomMultiplier(response?.limit);
-      setAlive(response?.alive);
+      setBomb(response.bomb);
     });
 
     SOCKET.on('POSITIONS', setPlayerPositions);
@@ -100,6 +100,7 @@ const Room = ({ name }) => {
 
   const handleEndScreen = () => {
     setEndScreenVisible(false);
+    setBomb(0);
     setView(0);
     setZoomMultiplier(0);
     setPause(false);
@@ -115,7 +116,7 @@ const Room = ({ name }) => {
               <button className="round-btn large bold" onClick={handleEndScreen}> back to lobby </button>
             </div>
           }
-          <label className="large bold center-text"> {alive} player{alive > 1 ? "s" : ""} remaining </label>
+          <label className="large bold center-text"> {bomb?.timer} <> &mdash; </> {bomb?.nickname} </label>
           <Canvas className={shake} onKey={handleKey} zoomMultiplier={zoomMultiplier}/>
           <Controls onPress={handleKey}/>
         </div>

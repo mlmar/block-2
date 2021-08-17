@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const io = require('socket.io')(server, { transports: ['websocket'] });
-const { ROOMS, joinRoom, leaveRoom, setPosition, setColor, setDeath } = require('../util/RoomsUtil.js');
-const { startGeneration } = require('../util/GameUtil.js');
+const { startGame, joinRoom, leaveRoom, setPosition, setColor, setDeath } = require('../util/RoomsUtil.js');
 
 /*** SOCKET SERVICE ***/
 io.on('connection', (socket) => {
@@ -35,20 +34,16 @@ io.on('connection', (socket) => {
   socket.on('START_GAME', () => {
     const room = socket.room;
     io.to(room).emit('START_GAME');
-    ROOMS[room].alive = Object.keys(ROOMS[room].players).length;
-    ROOMS[room].interval = startGeneration((blocks) => {
-      const { limit, pickups, alive} = ROOMS[room];
-      if(ROOMS[room]) {
-        io.to(room).emit('GENERATION', { blocks, limit, pickups, alive });
-      } else {
-        clearInterval(this);
-      }
-    }, room);
+
+    const genFunc = (response) => { io.to(room).emit('GENERATION', response); }
+    const bombFunc = (response) => { io.to(room).emit('ROOM_UPDATE', response); }
+
+    startGame(room, genFunc, bombFunc);
   });
 
   socket.on('PLAYER_POSITION', (position) => {
     const room = socket.room;
-    const positions = setPosition(socket, position)
+    const positions = setPosition(socket, position);
     socket.to(room).emit('POSITIONS', positions);
   });
 

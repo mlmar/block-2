@@ -1,8 +1,7 @@
 const { DEFAULTS, randomSpawn } = require('./Rules.js');
+const ROOMS = require('./Rooms.js');
 const { isTouching } = require('./CollisionUtil.js');
-
-/*** ROOM SERVICE ***/
-const ROOMS = {};
+const { startGeneration } = require('./GameUtil.js');
 
 const getPlayers = (room) => {
   if(!ROOMS[room]) return;
@@ -12,6 +11,14 @@ const getPlayers = (room) => {
     _players.push({ id, nickname });
   }
   return _players;
+}
+
+const getRandomPlayer = (room) => {
+  let playerIds = Object.keys(ROOMS[room].players);
+  playerIds.filter((id) => ROOMS[room].players[id].alive);
+  const randomId = playerIds[Math.floor(Math.random() * playerIds.length)];
+  const randomPlayer = ROOMS[room].players[randomId];
+  return randomPlayer;
 }
 
 const createRoom = (room) => {
@@ -24,7 +31,8 @@ const createRoom = (room) => {
     alive       : 0,
     difficulty  : 0,
     limit       : 0,
-    pickups     : {}
+    pickups     : {},
+    bomb        : null
   });
 }
 
@@ -60,9 +68,7 @@ const leaveRoom = ({ room, id, nickname }) => {
     delete ROOMS[room].players[id];
 
     if(ROOMS[room].host.id === id) {
-      const playerIds = Object.keys(ROOMS[room].players);
-      const randomId = playerIds[Math.floor(Math.random() * playerIds.length)];
-      const randomPlayer = ROOMS[room].players[randomId];
+      const randomPlayer = getRandomPlayer(room);
       ROOMS[room].host = { id : randomPlayer.id, nickname: randomPlayer.nickname};
       console.log("Chose", ROOMS[room].host.nickname, "as new host of", room);
     }
@@ -84,14 +90,27 @@ const setPosition = (socket, position) => {
     if(player.id !== id && isTouching(position, player.position)) console.log("touching");
   }
 
+
+  // if player is the bomb and they touch a pickup, reset the bomb timer and assign a new bomb
   const pickupKeys = Object.keys(ROOMS[room].pickups);
   for(var i = 0; i < pickupKeys.length; i++) {
     const p = pickupKeys[i];
     const pickup = ROOMS[room].pickups[p]
-    if(isTouching(pickup, position)) delete ROOMS[room].pickups[p];
+    if(isTouching(pickup, position)) {
+      delete ROOMS[room].pickups[p];
+      if(ROOMS[room].bomb?.id === id) {
+        setBomb(room);
+      }
+    }
   }
 
   return ROOMS[room].players;
+}
+
+// assign new bomb
+const setBomb = (room) => {
+  const { id, nickname } = getRandomPlayer(room);
+  ROOMS[room].bomb = { id, nickname, timer: DEFAULTS.BOMB_TIMER }
 }
 
 const setColor = (socket, color) => {
@@ -100,8 +119,7 @@ const setColor = (socket, color) => {
   ROOMS[room].players[id].color = color;
 }
 
-const setDeath = (socket) => {
-  const { id, room } = socket;
+const setDeath = ({ id, room }) => {
   if(!room) return;
   ROOMS[room].players[id].alive = false;
   ROOMS[room].alive--;
@@ -111,9 +129,34 @@ const setDeath = (socket) => {
   return { ...ROOMS[room], playersList: getPlayers(room), interval: null };
 }
 
+const startGame = (room, genFunc, bombFunc) => {
+  ROOMS[room].alive = Object.keys(ROOMS[room].players).length;
+  ROOMS[room].interval = startGeneration((blocks) => {
+    if(ROOMS[room]) {
+      const { limit, pickups, alive, bomb } = ROOMS[room];
+      
+      // if a bomb doesn't exist or bomb timer exceeds maximum
+      if(!bomb || bomb?.timer === 0) {
+        if(bomb) { // kill current bomb
+          const deathResponse = setDeath({ id: bomb.id, room });
+          if(deathResponse.end) bombFunc(deathResponse);
+        }
+
+        setBomb(room);
+      } else {
+        ROOMS[room].bomb.timer--;
+      }
+
+
+      genFunc({ blocks, limit, pickups, alive, bomb });
+    } else {
+      clearInterval(this);
+    }
+  }, room);
+}
+
 const endGame = (room, id) => {
   clearInterval(ROOMS[room].interval);
-
   
   ROOMS[room] = {
     ...ROOMS[room],
@@ -121,7 +164,8 @@ const endGame = (room, id) => {
     alive       : 0,
     difficulty  : 0,
     limit       : 0,
-    pickups     : {}
+    pickups     : {},
+    bomb        : null
   }
   
   const playerKeys = Object.keys(ROOMS[room].players);
@@ -133,8 +177,8 @@ const endGame = (room, id) => {
     ROOMS[room].players[p].position = { x, y };
   } 
   
-  const message = ROOMS[room].players[id].nickname + " wins!";
+  const message = "game over";
   return { ...ROOMS[room], playersList: getPlayers(room), end : true, message }
 }
 
-module.exports = { ROOMS, createRoom, joinRoom, leaveRoom, setPosition, setColor, setDeath };
+module.exports = { ROOMS, startGame, createRoom, joinRoom, leaveRoom, setPosition, setColor, setDeath };

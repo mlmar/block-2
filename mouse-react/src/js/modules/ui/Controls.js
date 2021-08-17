@@ -1,5 +1,5 @@
 /*
-  Mobile controls that makes use of FastClick and onToucEnd to work around 300ms delay on safari IOS
+  Mobile controls that makes use of onTouchStart to work around 300ms delay on safari IOS
 */
 
 const Controls = ({ onPress }) => {
@@ -10,12 +10,12 @@ const Controls = ({ onPress }) => {
 
   return (
     <div className="flex mobile controls">
-      <button id="a" onTouchEnd={handleControls}></button>
+      <button id="a" onTouchStart={handleControls}></button>
       <div className="flex-col">
-        <button id="w" onTouchEnd={handleControls}></button>
-        <button id="s" onTouchEnd={handleControls}></button>
+        <button id="w" onTouchStart={handleControls}></button>
+        <button id="s" onTouchStart={handleControls}></button>
       </div>
-      <button id="d" onTouchEnd={handleControls}></button>
+      <button id="d" onTouchStart={handleControls}></button>
     </div>
   )
 }
